@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/andar/godoku/board"
 )
 
 func main() {
-	puzzle, err := ioutil.ReadFile("example.txt")
+	fileName := os.Args[1]
+	puzzle, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		fmt.Println("Couldn't read file")
 		return
