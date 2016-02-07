@@ -7,7 +7,12 @@ import (
 )
 
 type Board struct {
-	b [9][9]int
+	b     [9][9]int
+	moves []pastMove
+}
+
+type pastMove struct {
+	i, j, v int
 }
 
 func (b *Board) Get(i, j int) (int, error) {
@@ -29,7 +34,22 @@ func Parse(puzzle []byte) (Board, error) {
 }
 
 func (b *Board) PushMove(i, j, value int) bool {
-	return b.isLegalMove(i, j, value)
+	if !b.isLegalMove(i, j, value) {
+		return false
+	}
+	b.moves = append(b.moves, pastMove{i, j, value})
+	b.b[i][j] = value
+	return true
+}
+
+func (b *Board) PopMove() (int, int, int) {
+	if len(b.moves) == 0 {
+		return 0, 0, 0
+	}
+	popped := b.moves[len(b.moves)-1]
+	b.moves = b.moves[:len(b.moves)-1]
+	b.b[popped.i][popped.j] = 0
+	return popped.i, popped.j, popped.v
 }
 
 func (b *Board) isLegalMove(i, j, value int) bool {

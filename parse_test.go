@@ -79,3 +79,39 @@ func TestBoardPushMove(t *testing.T) {
 		}
 	}
 }
+
+var moveSequence = []move{
+	{8, 8, 2, true},
+	{5, 4, 5, true},
+	{1, 4, 7, true},
+	{0, 3, 5, true},
+}
+
+func TestBoardPopMove(t *testing.T) {
+	puzzle, err := ioutil.ReadFile("example.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	board, err := Parse(puzzle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, move := range moveSequence {
+		success := board.PushMove(move.i, move.j, move.v)
+		if success != move.success {
+			t.Fatalf("Expected success of (%d, %d, %d) to be %t", move.i, move.j, move.v, move.success)
+		}
+		v, _ := board.Get(move.i, move.j)
+		if v != move.v {
+			t.Fatalf("Expected (%d, %d) to equal %d, got %d", move.i, move.j, move.v, v)
+		}
+	}
+	for x := len(moveSequence) - 1; x >= 0; x-- {
+		undoneMove := moveSequence[x]
+		i, j, v := board.PopMove()
+		if i != undoneMove.i || j != undoneMove.j || v != undoneMove.v {
+			t.Fatalf("Expected popped move to equal (%d, %d, %d); got (%d, %d, %d)",
+				undoneMove.i, undoneMove.j, undoneMove.v, i, j, v)
+		}
+	}
+}
