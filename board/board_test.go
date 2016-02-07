@@ -1,4 +1,4 @@
-package main
+package board
 
 import (
 	"io/ioutil"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	puzzle, err := ioutil.ReadFile("example.txt")
+	puzzle, err := ioutil.ReadFile("../example.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ var exampleMoves = []move{
 }
 
 func TestBoardPushMove(t *testing.T) {
-	puzzle, err := ioutil.ReadFile("example.txt")
+	puzzle, err := ioutil.ReadFile("../example.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ var moveSequence = []move{
 }
 
 func TestBoardPopMove(t *testing.T) {
-	puzzle, err := ioutil.ReadFile("example.txt")
+	puzzle, err := ioutil.ReadFile("../example.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,5 +113,58 @@ func TestBoardPopMove(t *testing.T) {
 			t.Fatalf("Expected popped move to equal (%d, %d, %d); got (%d, %d, %d)",
 				undoneMove.i, undoneMove.j, undoneMove.v, i, j, v)
 		}
+	}
+}
+
+func TestBestCell(t *testing.T) {
+	puzzle, err := ioutil.ReadFile("../example.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	board, err := Parse(puzzle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	i, j := board.BestCell()
+	v, _ := board.Get(i, j)
+	if v != 0 {
+		t.Fatalf("Invalid starting cell (%d, %d)", i, j)
+	}
+	success := board.PushMove(i, j, 2)
+	if !success {
+		t.Fatal("Expected success")
+	}
+	newi, newj := board.BestCell()
+	if newi == i && newj == j {
+		t.Fatalf("Got same cell as before: new (%d, %d); old (%d, %d)", newi, newj, i, j)
+	}
+	board.PopMove()
+	newi, newj = board.BestCell()
+	if newi != i && newj != j {
+		t.Fatal("Expected same move as before")
+	}
+}
+
+func TestPossibleValues(t *testing.T) {
+	puzzle, err := ioutil.ReadFile("../example.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	board, err := Parse(puzzle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	i, j := board.BestCell()
+	v, _ := board.Get(i, j)
+	if v != 0 {
+		t.Fatalf("Invalid starting cell (%d, %d)", i, j)
+	}
+	possibleValues := board.PossibleValues(i, j)
+	for _, v := range possibleValues {
+		success := board.PushMove(i, j, v)
+		if !success {
+			t.Fatalf("Expected success for move (%d, %d, %d)", i, j, v)
+		}
+		board.PopMove()
 	}
 }
