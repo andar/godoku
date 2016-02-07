@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math"
 	"strconv"
+	"strings"
 )
 
 type Board struct {
@@ -16,15 +17,25 @@ type pastMove struct {
 	i, j, v int
 }
 
+var divider = "------+-------+------"
+
 func (b *Board) String() string {
-	buf := make([]byte, 0, 90)
-	for _, r := range b.b {
-		for _, v := range r {
-			buf = strconv.AppendInt(buf, int64(v), 10)
+	strs := make([]string, 0, 10)
+	for x, row := range b.b {
+		line := make([]byte, 0, 22)
+		for y, v := range row {
+			line = strconv.AppendInt(line, int64(v), 10)
+			line = append(line, byte(' '))
+			if y < 6 && y%3 == 2 {
+				line = append(line, []byte("| ")...)
+			}
 		}
-		buf = append(buf, '\n')
+		strs = append(strs, string(line))
+		if x < 6 && x%3 == 2 {
+			strs = append(strs, divider)
+		}
 	}
-	return string(buf)
+	return strings.Join(strs, "\n")
 }
 
 func (b *Board) Get(i, j int) (int, error) {

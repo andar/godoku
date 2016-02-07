@@ -44,7 +44,7 @@ func main() {
 		}
 
 	}
-	fmt.Print(board.String())
+	fmt.Println(board.String())
 
 }
 
